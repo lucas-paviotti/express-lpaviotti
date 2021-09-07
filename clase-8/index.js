@@ -3,7 +3,6 @@ import Producto from './modulos/producto.js'
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
-
 const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
@@ -37,33 +36,34 @@ let arrayProductos = [
 
 app.get('/api/productos/listar', (req, res) => {
     if (arrayProductos.length) {
-        res.json(arrayProductos);
+        res.status(200).json(arrayProductos);
     } else {
-        res.json({error: 'No hay productos cargados'})
+        res.status(404).json({error: 'No hay productos cargados'})
     }
 });
 
 app.get('/api/productos/listar/:id', (req, res) => {
-    let filteredArray = arrayProductos.filter(obj => { return obj.id == req.params.id });
-    if (filteredArray.length) {
-        res.json(filteredArray);
+    let { id } = req.params;
+    let filteredArray = arrayProductos.find(obj => obj.id == id);
+    if (filteredArray) {
+        res.status(200).json(filteredArray);
     } else {
-        res.json({error: 'Producto no encontrado'})
+        res.status(404).json({error: 'Producto no encontrado'})
     }
 });
 
 app.post('/api/productos/guardar/', (req, res) => {
-    let body = req.body;
-    let producto = new Producto(body.name,body.price,body.url,uuidv4());
+    let { title, price, thumbnail } = req.body;
+    let producto = new Producto(title,price,thumbnail,uuidv4());
     arrayProductos.push(producto.getParsedObject());
-    res.json(producto);
+    res.status(200).json(producto);
 });
 
 /*
 OBJETO PARA PRUEBA:
 {
-    "name": "Juego de mesa Carcassonne",
+    "title": "Juego de mesa Carcassonne",
     "price": 5840,
-    "url": "https://http2.mlstatic.com/D_NQ_NP_824823-MLA45578263264_042021-O.webp"
+    "thumbnail": "https://http2.mlstatic.com/D_NQ_NP_824823-MLA45578263264_042021-O.webp"
 }
 */
